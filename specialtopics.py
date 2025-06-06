@@ -5,14 +5,14 @@
 import re
 
 class ChatState:
-    #represents the current state of the chat connection
+    #current state
     def __init__(self):
         self.mode = 'command'  # Initial mode is command
         self.current_channel = None
         self.current_user = None
     
     def to_dict(self):
-        #convert state to dictionary format for return
+        #make state dict
         return {
             'mode': self.mode,
             'current_channel': self.current_channel,
@@ -21,7 +21,6 @@ class ChatState:
     
     @classmethod
     def from_dict(cls, state_dict):
-        #create state from dictionary
         if state_dict is None:
             return cls()
         
@@ -47,7 +46,6 @@ class ChatState:
         self.current_channel = None
 
 def is_valid_channel(channel):
-    #checks if a channel is valid, by starting with #, followed by letters and numbers, must being with a letter
     if not channel.startswith('#'):
         return False
     
@@ -61,7 +59,7 @@ def is_valid_channel(channel):
     return all(c.isalnum() for c in name)
 
 def is_valid_username(username):
-    #must start with @ and be a valid email
+    #must start with @ and be valid
     if not username.startswith('@'):
         return False
     
@@ -69,11 +67,11 @@ def is_valid_username(username):
     email = username[1:]
     
     # Email pattern
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    pattern = r'[a-z]+(\.[a-z]+)*@[a-z]+(\.[a-z]+)*(\.org|\.com)'
     return bool(re.match(pattern, email))
 
 def extract_mentions(message):
-    #finds all valid @usernames in a message and returns them as a set
+    #@usernames returned as a set
     words = message.split()
     return {word for word in words if word.startswith('@') and is_valid_username(word)}
 
@@ -155,7 +153,7 @@ def get_next_state(current_state, message):
     return current_state
 
 def reChatParseCommand(message, state):
-    # Handle initial connection before any state conversion
+    # handle connection
     if message == '' and state is None:
         return {'action': 'greeting'}, {'mode': 'command', 'current_channel': None, 'current_user': None}
     chat_state = ChatState.from_dict(state)
